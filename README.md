@@ -1,78 +1,73 @@
-canvas id="game" width="400" height="400"></canvas>
+<!DOCTYPE html>
+<html>
+<body>
+
+<canvas id="game" width="400" height="400"></canvas>
 <div>Score: <span id="score">0</span></div>
 
 <script>
 const canvas = document.getElementById("game");
 const ctx = canvas.getContext("2d");
 
-const box = 20;
-let snake = [{x: 200, y: 200}];
-let food = {
-  x: Math.floor(Math.random()*20)*box,
-  y: Math.floor(Math.random()*20)*box
-};
+const size = 20;
+let snake = [{x:10, y:10}];
+let food = {x:5, y:5};
 
-let dx = box;
+let dx = 1;
 let dy = 0;
 let score = 0;
 
-document.addEventListener("keydown", direction);
-
-function direction(e){
-  if(e.key === "ArrowLeft" && dx === 0){ dx = -box; dy = 0; }
-  else if(e.key === "ArrowUp" && dy === 0){ dx = 0; dy = -box; }
-  else if(e.key === "ArrowRight" && dx === 0){ dx = box; dy = 0; }
-  else if(e.key === "ArrowDown" && dy === 0){ dx = 0; dy = box; }
-}
-
-function collision(head, arr){
-  for(let i=0;i<arr.length;i++){
-    if(head.x === arr[i].x && head.y === arr[i].y){
-      return true;
-    }
-  }
-  return false;
-}
+document.addEventListener("keydown", e=>{
+ if(e.key==="ArrowUp" && dy===0){dx=0;dy=-1;}
+ if(e.key==="ArrowDown" && dy===0){dx=0;dy=1;}
+ if(e.key==="ArrowLeft" && dx===0){dx=-1;dy=0;}
+ if(e.key==="ArrowRight" && dx===0){dx=1;dy=0;}
+});
 
 function draw(){
-  ctx.fillStyle = "black";
-  ctx.fillRect(0,0,400,400);
 
-  for(let i=0;i<snake.length;i++){
-    ctx.fillStyle = i===0 ? "lime" : "green";
-    ctx.fillRect(snake[i].x, snake[i].y, box, box);
-  }
+ ctx.fillStyle="black";
+ ctx.fillRect(0,0,400,400);
 
-  ctx.fillStyle = "red";
-  ctx.fillRect(food.x, food.y, box, box);
+ snake.forEach((s,i)=>{
+  ctx.fillStyle=i?"green":"lime";
+  ctx.fillRect(s.x*size,s.y*size,size,size);
+ });
 
-  let headX = snake[0].x + dx;
-  let headY = snake[0].y + dy;
+ ctx.fillStyle="red";
+ ctx.fillRect(food.x*size,food.y*size,size,size);
 
-  if(headX === food.x && headY === food.y){
-    score++;
-    document.getElementById("score").textContent = score;
-    food = {
-      x: Math.floor(Math.random()*20)*box,
-      y: Math.floor(Math.random()*20)*box
-    };
-  } else {
-    snake.pop();
-  }
+ let head={
+  x:snake[0].x+dx,
+  y:snake[0].y+dy
+ };
 
-  const newHead = {x: headX, y: headY};
+ if(head.x===food.x && head.y===food.y){
+  score++;
+  document.getElementById("score").textContent=score;
 
-  if(
-    headX < 0 || headY < 0 ||
-    headX >= 400 || headY >= 400 ||
-    collision(newHead, snake)
-  ){
-    clearInterval(game);
-    alert("Game Over. Score: " + score);
-  }
+  food={
+   x:Math.floor(Math.random()*20),
+   y:Math.floor(Math.random()*20)
+  };
+ }else{
+  snake.pop();
+ }
 
-  snake.unshift(newHead);
+ if(
+  head.x<0 || head.y<0 ||
+  head.x>=20 || head.y>=20 ||
+  snake.some(s=>s.x===head.x && s.y===head.y)
+ ){
+  alert("Game Over. Score: "+score);
+  location.reload();
+ }
+
+ snake.unshift(head);
 }
 
-let game = setInterval(draw, 100);
+setInterval(draw,100);
 </script>
+
+</body>
+</html>
